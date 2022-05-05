@@ -28,9 +28,9 @@ public class Family {
     @Override
     public String toString() {
         return "Family{" +
-                "name='" + name + '\'' +
-                ", travelTo='" + travelTo + '\'' +
-                ", members=" + members +
+                "name='" + this.name + '\'' +
+                ", travelTo='" + this.travelTo + '\'' +
+                ", members=" + this.members +
                 '}';
     }
 }

@@ -3,6 +3,7 @@ package domain;
 import java.util.List;
 
 public class Plane {
+
     public static final int SEATS = 40;
     private final List<Family> families;
     private final int flightNumber;
@@ -18,5 +19,13 @@ public class Plane {
 
     public int getFlightNumber() {
         return flightNumber;
+    }
+
+    @Override
+    public String toString() {
+        return "Plane{" +
+                "families=" + this.families +
+                ", flightNumber=" + this.flightNumber +
+                '}';
     }
 }
