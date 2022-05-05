@@ -1,5 +1,6 @@
 package domain;
 
+import business.TourOperator;
 import domain.factory.FamilyFactory;
 import domain.factory.PlaneFactory;
 
@@ -12,6 +13,18 @@ public class Dispatcher {
 //        List<Plane> planeList = PlaneFactory.createPlanes();
 //        planeList.forEach(System.out::println);
 //        planeList.forEach(plane -> System.out.println(plane.getFamilies()));
+
+
+
+        List<Plane> test = List.of(
+                PlaneFactory.createPlanes().get(0)
+        );
+
+        test.forEach(plane -> plane.getFamilies().forEach(family -> family.setTravelTo("Kalush")));
+        test.forEach(plane -> plane.getFamilies().forEach(System.out::println));
+
+        TourOperator.sortingPassengersByCity(test);
+
 
 
     }
