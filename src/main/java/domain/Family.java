@@ -2,7 +2,7 @@ package domain;
 
 public class Family {
     private final String name;
-    private  String travelTo;
+    private String travelTo;
     private final int members;
 
     public void setTravelTo(String travelTo) {
@@ -15,8 +15,8 @@ public class Family {
         this.name = name;
         this.travelTo = travelTo;
         this.members = members;
-    }
 
+    }
 
 
     public String getName() {
@@ -41,10 +41,8 @@ public class Family {
 
     @Override
     public String toString() {
-        return "Family{" +
-                "name='" + this.name + '\'' +
-                ", travelTo='" + this.travelTo + '\'' +
-                ", members=" + this.members +
-                '}';
+        return "||name=" + this.name +
+                " travelTo=" + this.travelTo +
+                " members=" + this.members + "||";
     }
 }
