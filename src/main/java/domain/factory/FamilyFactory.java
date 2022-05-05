@@ -23,7 +23,7 @@ public class FamilyFactory {
             if (countPeopleInPlane < Plane.SEATS + 1) {
                 familiesInPlane.add(new Family(
                         surnameList.get((int) (Math.random() * surnameList.size())),
-                        cities[(int) (Math.random() * 3) + 1],
+                        cities[(int) (Math.random() * 4)],
                         countOfMembers));
             } else {
                 countPeopleInPlane -= countOfMembers;

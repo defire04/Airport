@@ -27,16 +27,15 @@ public class TourOperator {
                 familyMembersTemp = family.getMembers();
                 for (Bus bus : busList) {
                     placesLeftTemp = bus.getPlacesLeft();
-                    int placeResult;
+
                     if (familyTravelTo.equals(bus.getDriveTo())) {
-                        placeResult = placesLeftTemp - familyMembersTemp;
+
 
                         if (placesLeftTemp == 0) {
                             new Thread(bus).start();
                             busList.remove(bus);
-                            break;
-                        } else if (placeResult > -1) {
-                            bus.setPlacesLeft(placeResult);
+                        } else if (placesLeftTemp - familyMembersTemp > -1) {
+                            bus.setPlacesLeft(placesLeftTemp - familyMembersTemp);
                             bus.getFamilyList().add(family);
                             break;
                         } else {
@@ -51,18 +50,14 @@ public class TourOperator {
             }
 
 
-
         } finally {
-//            System.out.println(busList);
 //            busList.forEach(System.out::println);
-//            if (!busList.isEmpty()) {
-                for (Bus bus : busList) {
-                    if(!bus.getFamilyList().isEmpty()) {
-                        new Thread(bus).start();
-                    }
-//                    busList.remove(bus);
+            for (Bus bus : busList) {
+                if (!bus.getFamilyList().isEmpty()) {
+//                    new Thread(bus).start();
+                    System.out.println(bus);
                 }
-//            }
+            }
         }
     }
 
