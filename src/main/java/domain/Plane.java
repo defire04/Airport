@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Plane {
 
-    public static final int SEATS = 20;
+    public static final int SEATS = 40;
     private final List<Family> families;
     private final int flightNumber;
 

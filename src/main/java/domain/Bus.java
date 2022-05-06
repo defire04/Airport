@@ -46,7 +46,7 @@ public class Bus implements Runnable {
     @Override
     public String toString() {
         return "Bus{" +
-                "passengersCount=" + this.passengersCount +
+                "passengersCount=" + this.passengersCount + " placeLeft="+this.placesLeft+
                 ", driveTo='" + this.driveTo + '\'' + this.familyList +
                 '}';
     }

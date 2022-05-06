@@ -5,6 +5,7 @@ import business.TourOperator;
 import domain.factory.FamilyFactory;
 import domain.factory.PlaneFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -56,9 +57,36 @@ public class Dispatcher {
 
 //        TourOperator.sortingPassengersByCity(test);
 
-
-//        for (int i = 0; i < 40; i++) {
-//            System.out.println((int) (Math.random() * 4));
+//        List<Car> carList = new ArrayList<>();
+//        for (int i = 0; i < 20; i++) {
+//            carList.add(new Car(("a" + i), i));
 //        }
+//
+//
+//        for (Car car : carList) {
+//            if(car.number % 2 == 0){
+//                carList.remove(car);
+//            }
+//        }
+//        carList.forEach(System.out::println);
+    }
+}
+
+
+class Car {
+    String model;
+    int number;
+
+    public Car(String model, int number) {
+        this.model = model;
+        this.number = number;
+    }
+
+    @Override
+    public String toString() {
+        return "Car{" +
+                "model='" + model + '\'' +
+                ", number=" + number +
+                '}';
     }
 }
