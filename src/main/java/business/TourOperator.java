@@ -11,13 +11,10 @@ public class TourOperator {
     public static void sortingPassengersByCity(List<Family> familyList) {
 
         List<Bus> busList = new ArrayList<>();
-
-        int placesLeftTemp;
-        int familyMembersTemp;
-        AtomicInteger res = new AtomicInteger();
-        familyList.forEach(family -> res.addAndGet(family.getMembers()));
-        System.out.println(res);
+//        System.out.println(familyList.stream().collect(Collectors.summarizingLong(Family::getMembers)).getSum());
         try {
+            int placesLeftTemp;
+            int familyMembersTemp;
             for (Family family : familyList) {
                 String familyTravelTo = family.getTravelTo();
 
@@ -50,18 +47,12 @@ public class TourOperator {
 
 
         } finally {
-//            busList.forEach(System.out::println);
-//            System.out.println("----------------------------------------------------------------------------------");
+
             busList.removeIf(bus -> bus.getFamilyList().isEmpty());
-
-//            busList.forEach(System.out::println);
-//            System.out.println("============================");
-
             Map<String, List<Bus>> busInfoMap = busList.stream().collect(Collectors.groupingBy(
                     Bus::getDriveTo, Collectors.toList()
             ));
 
-//            busInfoMap.forEach((key, value) -> System.out.println(key + " " + value));
             List<Family> newFamilyList = new ArrayList<>();
 
             for (Map.Entry<String, List<Bus>> bus : busInfoMap.entrySet()) {
@@ -76,55 +67,5 @@ public class TourOperator {
                 sortingPassengersByCity(newFamilyList);
             }
         }
-    }
-
-
-    public static void sortingPassengersByCity2(List<Family> familyList) {
-        List<Bus> busListToKalush = new ArrayList<>();
-        List<Bus> busList = new ArrayList<>();
-
-        for (Family family : familyList) {
-            String familyTravelTo = family.getTravelTo();
-            if (familyTravelTo.equals("Kalush")) {
-                int placesLeftTemp;
-                int familyMembersTemp;
-                if (busListToKalush.isEmpty()) {
-                    busListToKalush.add(new Bus((int) (Math.random() * 3) + 6, "Kalush"));
-                }
-
-                for (Bus busToKalush : busListToKalush) {
-                    placesLeftTemp = busToKalush.getPlacesLeft();
-                    familyMembersTemp = family.getMembers();
-
-                    if (placesLeftTemp == 0) {
-                        new Thread(busToKalush).start();
-                        busListToKalush.remove(busToKalush);
-                        break;
-                    }
-
-                    if (placesLeftTemp - familyMembersTemp > -1) { //подходит ли автобус
-                        busToKalush.setPlacesLeft(placesLeftTemp - familyMembersTemp);
-                        busToKalush.getFamilyList().add(family);
-                        break;
-                    } else if (placesLeftTemp - familyMembersTemp < 0) {
-                        Bus newBus = new Bus((int) (Math.random() * 3) + 6, "Kalush");
-                        busListToKalush.add(newBus);
-                        newBus.setPlacesLeft(newBus.getPlacesLeft() - familyMembersTemp);
-                        newBus.getFamilyList().add(family);
-                        break;
-                    }
-                }
-
-            } else if (familyTravelTo.equals("Kosiv")) {
-
-            } else if (familyTravelTo.equals("Galych")) {
-
-            } else if (familyTravelTo.equals("Kolomia")) {
-
-            } else {
-
-            }
-        }
-
     }
 }
