@@ -4,18 +4,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Plane implements Runnable {
-
     public static final int SEATS = 40;
-
     private final int flightNumber;
     private List<Family> families;
-
     public Plane(List<Family> families, int flightNumber) {
         this.families = families;
         this.flightNumber = flightNumber;
-        new Thread(this).start();
+//        new Thread(this).start();
     }
-
 
     public List<Family> getFamilies() {
         return families;
@@ -46,8 +42,5 @@ public class Plane implements Runnable {
         System.out.println("----------------------------------------------\n" +
                 this.families.size() + " families arrived from aircraft number " + this.flightNumber + "!\n" +
                 "List of visiting families:" + this.families);
-
-
-
     }
 }

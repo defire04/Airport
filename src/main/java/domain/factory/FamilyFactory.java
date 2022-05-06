@@ -1,10 +1,10 @@
 package domain.factory;
 
-import domain.Family;
 import domain.Plane;
+import domain.Family;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 public class FamilyFactory {
     public static List<Family> createFamilies() {
@@ -44,6 +44,5 @@ public class FamilyFactory {
         }
         return resultSurnameSet;
     }
-
 }
 

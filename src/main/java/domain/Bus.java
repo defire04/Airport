@@ -1,8 +1,9 @@
 package domain;
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Objects;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Bus implements Runnable {
@@ -16,7 +17,7 @@ public class Bus implements Runnable {
         this.passengersCount = passengersCount;
         this.placesLeft = passengersCount;
         this.driveTo = driveTo;
-        familyList = new ArrayList<>();
+        this.familyList = new ArrayList<>();
     }
 
     public String getDriveTo() {
@@ -46,7 +47,7 @@ public class Bus implements Runnable {
     @Override
     public String toString() {
         return "Bus{" +
-                "passengersCount=" + this.passengersCount + " placeLeft="+this.placesLeft+
+                "passengersCount=" + this.passengersCount + " placeLeft=" + this.placesLeft +
                 ", driveTo='" + this.driveTo + '\'' + this.familyList +
                 '}';
     }
@@ -59,15 +60,6 @@ public class Bus implements Runnable {
         return passengersCount == bus.passengersCount && placesLeft == bus.placesLeft && Objects.equals(driveTo, bus.driveTo) && Objects.equals(familyList, bus.familyList);
     }
 
-//    @Override
-//    public boolean equals(Object o) {
-//        if (o == null || getClass() != o.getClass()) {
-//            return false;
-//        }
-//        Bus bus = (Bus) o;
-//        return Objects.equals(driveTo, bus.driveTo);
-//    }
-
     @Override
     public int hashCode() {
         return Objects.hash(driveTo);
@@ -75,14 +67,13 @@ public class Bus implements Runnable {
 
     @Override
     public void run() {
-        AtomicInteger placesAreOccupied = new AtomicInteger();
-        this.familyList.forEach(family -> placesAreOccupied.addAndGet(family.getMembers()));
-        System.out.println(this.passengersCount + " local bus brought " + placesAreOccupied + " people to " + this.driveTo);
+        System.out.println(this.passengersCount + " local bus brought " + this.familyList.stream().mapToInt(Family::getMembers).sum() + " people to " + this.driveTo +
+                " Families =" + this.familyList);
     }
 
-    public void busArrived(){
-        AtomicInteger placesAreOccupied = new AtomicInteger();
-        this.familyList.forEach(family -> placesAreOccupied.addAndGet(family.getMembers()));
-        System.out.println(this.passengersCount + " local bus brought " + placesAreOccupied + " people to " + this.driveTo);
+    public void busArrived() {
+        System.out.println(this.passengersCount + " local bus brought " + this.familyList.stream().mapToInt(Family::getMembers).sum() + " people to " + this.driveTo +
+                " Families =" + this.familyList);
     }
+
 }

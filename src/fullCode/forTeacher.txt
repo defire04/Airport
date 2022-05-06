@@ -1,0 +1,331 @@
+package com.company;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicInteger;
+
+
+
+public class Dispatcher {
+    public static void main(String[] args) {
+        List<Plane> arrivalList = PlaneFactory.createPlanes();
+        System.out.println("Arrive " + arrivalList.size() + " planes");
+
+
+//        Tester.setFamilyForTest(new Family("Millers", "Kiev", 4));
+
+        BorderService.arrivalOfFamiliesToAirport(arrivalList);
+
+//        Tester.getTestHowManyPeopleTravelToEachDirection();
+//        Tester.getAllFamilies();
+    }
+}
+
+class Tester {
+    public static void getTestHowManyPeopleTravelToEachDirection() {
+        BorderService.allArrivingFamiliesAtAirport.stream().collect(Collectors.groupingBy(
+                        Family::getTravelTo, Collectors.summingInt(Family::getMembers)))
+                .forEach((key, value) -> System.out.println(key + " " + value));
+    }
+
+    public static void getAllFamilies() {
+        BorderService.allArrivingFamiliesAtAirport.forEach(System.out::println);
+    }
+
+    public static void setFamilyForTest(Family family) {
+        BorderService.allArrivingFamiliesAtAirport.add(family);
+    }
+}
+
+class BorderService {
+    public static List<Family> allArrivingFamiliesAtAirport = new ArrayList<>();
+
+    public static void arrivalOfFamiliesToAirport(List<Plane> planeList) {
+        planeList.forEach(plane -> allArrivingFamiliesAtAirport.addAll(plane.getFamilies()));
+        TourOperator.sortingPassengersByCity(allArrivingFamiliesAtAirport);
+    }
+}
+
+class TourOperator {
+    public static void sortingPassengersByCity(List<Family> familyList) {
+        List<Bus> busList = new ArrayList<>();
+//        System.out.println(familyList.stream().collect(Collectors.summarizingLong(Family::getMembers)).getSum());
+        int placesLeftTemp;
+        int familyMembersTemp;
+        String familyTravelTo;
+        for (Family family : familyList) {
+            familyTravelTo = family.getTravelTo();
+            if (!(busList.contains(new Bus(0, familyTravelTo)))) {
+                busList.add(new Bus((int) (Math.random() * 3) + 6, familyTravelTo));
+            }
+            familyMembersTemp = family.getMembers();
+            for (Bus bus : busList) {
+                if (familyTravelTo.equals(bus.getDriveTo())) {
+                    placesLeftTemp = bus.getPlacesLeft();
+                    if (placesLeftTemp - familyMembersTemp > -1) {
+                        bus.setPlacesLeft(placesLeftTemp - familyMembersTemp);
+                        bus.getFamilyList().add(family);
+                        if (bus.getPlacesLeft() == 0) {
+                            new Thread(bus).start();
+//                                bus.busArrived(); // Если нужно проверить что незаполненый приезжает последним
+                            busList.remove(bus);
+                        }
+                    } else {
+                        Bus newBus = new Bus(((int) (Math.random() * 3) + 6), familyTravelTo);
+                        busList.add(newBus);
+                        newBus.setPlacesLeft(newBus.getPlacesLeft() - familyMembersTemp);
+                        newBus.getFamilyList().add(family);
+                    }
+                    break;
+                }
+            }
+        }
+
+        checkingIfTheLastBusIsGoingInThatDirection(busList);
+    }
+
+    private static void checkingIfTheLastBusIsGoingInThatDirection(List<Bus> busList) {
+        busList.removeIf(bus -> bus.getFamilyList().isEmpty());
+        Map<String, List<Bus>> busInfoMap = busList.stream().collect(Collectors.groupingBy(
+                Bus::getDriveTo, Collectors.toList()
+        ));
+
+        List<Family> newFamilyList = new ArrayList<>();
+
+        for (Map.Entry<String, List<Bus>> bus : busInfoMap.entrySet()) {
+            if (bus.getValue().size() > 1) {
+                bus.getValue().forEach(bus1 -> newFamilyList.addAll(bus1.getFamilyList()));
+            } else {
+                bus.getValue().forEach(bus1 -> new Thread(bus1).start());
+//                    bus.getValue().forEach(Bus::busArrived); // Если нужно проверить что незаполненый приезжает последним
+            }
+        }
+        if (!newFamilyList.isEmpty()) {
+            sortingPassengersByCity(newFamilyList);
+        }
+    }
+}
+
+
+class Family {
+    private final String name;
+    private final String travelTo;
+    private final int members;
+    private boolean isFamilyInBus = false;
+
+    public Family(String name, String travelTo, int members) {
+        this.name = name;
+        this.travelTo = travelTo;
+        this.members = members;
+
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getTravelTo() {
+        return travelTo;
+    }
+
+    public int getMembers() {
+        return members;
+    }
+
+    public boolean isFamilyInBus() {
+        return isFamilyInBus;
+    }
+
+    public void setFamilyInBus(boolean familyInBus) {
+        isFamilyInBus = familyInBus;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Family family = (Family) o;
+        return members == family.members && isFamilyInBus == family.isFamilyInBus && Objects.equals(name, family.name) && Objects.equals(travelTo, family.travelTo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, travelTo, members, isFamilyInBus);
+    }
+
+    @Override
+    public String toString() {
+        return "Family = " + this.name +
+                " TravelTo=" + this.travelTo +
+                " Members=" + this.members + " ";
+    }
+}
+
+class Plane implements Runnable {
+    public static final int SEATS = 40;
+    private final int flightNumber;
+    private List<Family> families;
+
+    public Plane(List<Family> families, int flightNumber) {
+        this.families = families;
+        this.flightNumber = flightNumber;
+//        new Thread(this).start();
+    }
+
+    public List<Family> getFamilies() {
+        return families;
+    }
+
+    public void setFamilies(List<Family> families) { // Чтобы добавить семью для теста
+        this.families = families;
+    }
+
+    public int getFlightNumber() {
+        return flightNumber;
+    }
+
+    @Override
+    public String toString() {
+        return "Plane{" +
+                "families=" + this.families +
+                ", flightNumber=" + this.flightNumber +
+                '}';
+    }
+
+    @Override
+    public void run() {
+        //infoAboutPeopleAboard();
+    }
+
+    private void infoAboutPeopleAboard() {
+        System.out.println("----------------------------------------------\n" +
+                this.families.size() + " families arrived from aircraft number " + this.flightNumber + "!\n" +
+                "List of visiting families:" + this.families);
+    }
+}
+
+
+class Bus implements Runnable {
+    private final String driveTo;
+    private final int passengersCount;
+    private int placesLeft;
+    private List<Family> familyList;
+
+
+    public Bus(int passengersCount, String driveTo) {
+        this.passengersCount = passengersCount;
+        this.placesLeft = passengersCount;
+        this.driveTo = driveTo;
+        this.familyList = new ArrayList<>();
+    }
+
+    public String getDriveTo() {
+        return driveTo;
+    }
+
+    public int getPassengersCount() {
+        return passengersCount;
+    }
+
+    public int getPlacesLeft() {
+        return placesLeft;
+    }
+
+    public void setPlacesLeft(int placesLeft) {
+        this.placesLeft = placesLeft;
+    }
+
+    public List<Family> getFamilyList() {
+        return familyList;
+    }
+
+    public void setFamilyList(List<Family> familyList) {
+        this.familyList = familyList;
+    }
+
+    @Override
+    public String toString() {
+        return "Bus{" +
+                "passengersCount=" + this.passengersCount + " placeLeft=" + this.placesLeft +
+                ", driveTo='" + this.driveTo + '\'' + this.familyList +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Bus bus = (Bus) o;
+        return passengersCount == bus.passengersCount && placesLeft == bus.placesLeft && Objects.equals(driveTo, bus.driveTo) && Objects.equals(familyList, bus.familyList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(driveTo);
+    }
+
+    @Override
+    public void run() {
+        System.out.println(this.passengersCount + " local bus brought " + this.familyList.stream().mapToInt(Family::getMembers).sum() + " people to " + this.driveTo +
+                " Families =" + this.familyList);
+    }
+
+    public void busArrived() {
+        System.out.println(this.passengersCount + " local bus brought " + this.familyList.stream().mapToInt(Family::getMembers).sum() + " people to " + this.driveTo +
+                " Families =" + this.familyList);
+    }
+}
+class FamilyFactory {
+    public static List<Family> createFamilies() {
+
+        List<Family> familiesInPlane = new ArrayList<>();
+        List<String> surnameList = createSurnames();
+
+        String[] cities = {"Kalush", "Kosiv", "Galych", "Kolomia"};
+
+        int countOfMembers = 0;
+        int countPeopleInPlane = 0;
+
+        while (!(countPeopleInPlane == Plane.SEATS)) {
+            countOfMembers = (int) (Math.random() * 3) + 1;
+            countPeopleInPlane += countOfMembers;
+            if (countPeopleInPlane < Plane.SEATS + 1) {
+                familiesInPlane.add(new Family(
+                        surnameList.get((int) (Math.random() * surnameList.size())),
+                        cities[(int) (Math.random() * 4)],
+                        countOfMembers));
+            } else {
+                countPeopleInPlane -= countOfMembers;
+            }
+        }
+        return familiesInPlane;
+    }
+
+
+    protected static List<String> createSurnames() {
+        List<String> resultSurnameSet = new ArrayList<>();
+        String[] surnameCreator = "abcdefghijklmnopqrstuvwxyz".split("");
+
+        for (String symbol : surnameCreator) {
+            for (String symbol2 : surnameCreator) {
+                resultSurnameSet.add(symbol + symbol2);
+            }
+        }
+        return resultSurnameSet;
+    }
+}
+
+class PlaneFactory {
+
+    public static List<Plane> createPlanes() {
+        List<Plane> planeResultList = new ArrayList<>();
+
+        for (int i = 0; i < (int) (Math.random() * 3) + 3; i++) {
+//        for (int i = 0; i < 1; i++) {
+            planeResultList.add(new Plane(FamilyFactory.createFamilies(), i + 1));
+        }
+        return planeResultList;
+    }
+}
+
+

@@ -7,8 +7,6 @@ import domain.Tester;
 import business.BorderService;
 import domain.factory.PlaneFactory;
 
-
-
 public class Dispatcher {
     public static void main(String[] args) {
         List<Plane> arrivalList = PlaneFactory.createPlanes();
@@ -22,8 +20,6 @@ public class Dispatcher {
 //        Tester.getTestHowManyPeopleTravelToEachDirection();
 //        Tester.getAllFamilies();
     }
-
-
 }
 
 

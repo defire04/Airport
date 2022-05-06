@@ -1,11 +1,10 @@
 package business;
 
-import domain.Family;
 import domain.Plane;
+import domain.Family;
 
-import java.util.ArrayList;
 import java.util.List;
-
+import java.util.ArrayList;
 
 public class BorderService {
     public static List<Family> allArrivingFamiliesAtAirport = new ArrayList<>();
