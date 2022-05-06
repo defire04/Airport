@@ -17,7 +17,7 @@ public class Dispatcher {
 
         BorderService.arrivalOfFamiliesToAirport(arrivalList);
 
-//        Tester.getTestHowManyPeopleTravelToEachDirection();
+        Tester.getTestHowManyPeopleTravelToEachDirection();
 //        Tester.getAllFamilies();
     }
 }
