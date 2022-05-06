@@ -40,11 +40,10 @@ public class TourOperator {
                             bus.setPlacesLeft(placesLeftTemp - familyMembersTemp);
                             bus.getFamilyList().add(family);
                             if (bus.getPlacesLeft() == 0) {
-                                System.out.println("222222222222222222222222222222222222222222222222222222222222");
+//                                System.out.println("222222222222222222222222222222222222222222222222222222222222");
                                 new Thread(bus).start();
                                 busList.remove(bus);
                             }
-                            break;
                         } else {
                             Bus newBus = new Bus(((int) (Math.random() * 3) + 6), familyTravelTo);
                             busList.add(newBus);
@@ -55,8 +54,8 @@ public class TourOperator {
                                 new Thread(bus).start();
                                 busList.remove(bus);
                             }
-                            break;
                         }
+                        break;
                     }
 //                    if (bus.getPlacesLeft() == 0) {
 //                        System.out.println("333333333333");
@@ -70,22 +69,18 @@ public class TourOperator {
 
         } finally {
 //            busList.forEach(System.out::println);
-            System.out.println("----------------------------------------------------------------------------------");
+//            System.out.println("----------------------------------------------------------------------------------");
             busList.removeIf(bus -> bus.getFamilyList().isEmpty());
 
-            busList.forEach(System.out::println);
-            System.out.println("============================");
+//            busList.forEach(System.out::println);
+//            System.out.println("============================");
 
             Map<String, List<Bus>> busInfoMap = busList.stream().collect(Collectors.groupingBy(
                     Bus::getDriveTo, Collectors.toList()
             ));
-//            Map<String, Long> busInfoMap = busList.stream().collect(Collectors.groupingBy(
-//                    Bus::getDriveTo, Collectors.counting()
-//            ));
-            System.out.println(busInfoMap);
 
+//            busInfoMap.forEach((key, value) -> System.out.println(key + " " + value));
             List<Family> newFamilyList = new ArrayList<>();
-//            busInfoMap.values().stream().filter(value -> value > 1).forEach();
 
             for (Map.Entry<String, List<Bus>> bus : busInfoMap.entrySet()) {
                 if (bus.getValue().size() > 1) {
@@ -94,35 +89,9 @@ public class TourOperator {
                     bus.getValue().forEach(bus1 -> new Thread(bus1).start());
                 }
             }
-
-
-//            for (Map.Entry<String, Long> bus : busInfoMap.entrySet()) {
-//                System.out.println(bus.getKey() + "/" + bus.getValue());
-////
-////                busList.forEach(bus1 -> {
-////                    if (bus.getValue() > 1) {
-////                        newFamilyList.addAll(bus1.getFamilyList());
-////                    } else {
-////                        new Thread(bus1).start();
-////                    }
-////                });
-////            }
-//                if (bus.getValue() > 1) {
-//                    busList.stream().filter(bus1 -> bus1.getDriveTo().equals(bus.getKey())).forEach(bus1 -> {
-//                        newFamilyList.addAll(bus1.getFamilyList());
-//                    });
-//                } else {
-//                    busList.forEach(bus1 -> {
-//                        newFamilyList.addAll(bus1.getFamilyList());
-//                    });
-//
-//                }
-//            }
             if (!newFamilyList.isEmpty()) {
                 sortingPassengersByCity(newFamilyList);
             }
-
-
         }
     }
 
