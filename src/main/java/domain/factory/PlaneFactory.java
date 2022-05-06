@@ -9,6 +9,7 @@ public class PlaneFactory {
         List<Plane> planeResultList = new ArrayList<>();
 
         for (int i = 0; i < (int) (Math.random() * 3) + 3; i++) {
+//        for (int i = 0; i < 1; i++) {
             planeResultList.add(new Plane(FamilyFactory.createFamilies(), i + 1));
         }
         return planeResultList;

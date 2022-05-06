@@ -1,18 +1,29 @@
 package domain;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import domain.Tester;
 import business.BorderService;
 import domain.factory.PlaneFactory;
 
+
+
 public class Dispatcher {
     public static void main(String[] args) {
+        List<Plane> arrivalList = PlaneFactory.createPlanes();
+        System.out.println("Arrive " + arrivalList.size() + " planes");
 
-        List<Plane> test = PlaneFactory.createPlanes();
-        System.out.println("Arrive " + test.size() + " planes");
 
-        BorderService.arrivalOfFamiliesToAirport(test);
+//        Tester.setFamilyForTest(new Family("Millers", "Kiev", 4));
+
+        BorderService.arrivalOfFamiliesToAirport(arrivalList);
+
+//        Tester.getTestHowManyPeopleTravelToEachDirection();
+//        Tester.getAllFamilies();
     }
+
+
 }
 
 

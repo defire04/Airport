@@ -4,13 +4,8 @@ import java.util.Objects;
 
 public class Family {
     private final String name;
-    private String travelTo;
+    private final String travelTo;
     private final int members;
-
-    public void setTravelTo(String travelTo) {
-        this.travelTo = travelTo;
-    }
-
     private boolean isFamilyInBus = false;
 
     public Family(String name, String travelTo, int members) {
@@ -56,8 +51,8 @@ public class Family {
 
     @Override
     public String toString() {
-        return "||name=" + this.name +
-                " travelTo=" + this.travelTo +
-                " members=" + this.members + "||";
+        return "Family = " + this.name +
+                " TravelTo=" + this.travelTo +
+                " Members=" + this.members + " ";
     }
 }

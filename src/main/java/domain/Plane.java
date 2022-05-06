@@ -6,8 +6,9 @@ import java.util.stream.Collectors;
 public class Plane implements Runnable {
 
     public static final int SEATS = 40;
-    private final List<Family> families;
+
     private final int flightNumber;
+    private List<Family> families;
 
     public Plane(List<Family> families, int flightNumber) {
         this.families = families;
@@ -15,8 +16,13 @@ public class Plane implements Runnable {
         new Thread(this).start();
     }
 
+
     public List<Family> getFamilies() {
         return families;
+    }
+
+    public void setFamilies(List<Family> families) { // Чтобы добавить семью для теста
+        this.families = families;
     }
 
     public int getFlightNumber() {
@@ -33,15 +39,15 @@ public class Plane implements Runnable {
 
     @Override
     public void run() {
-        infoAboutPeopleAboard();
+        //infoAboutPeopleAboard();
     }
 
     private void infoAboutPeopleAboard() {
         System.out.println("----------------------------------------------\n" +
-                "From plane number " + flightNumber + " " + families.size() + " families arrived!");
-//                "People traveling to the following cities:");
-//        families.stream().collect(Collectors.groupingBy(
-//                Family::getTravelTo, Collectors.counting())
-//        ).forEach((key, value) -> System.out.println(key + " " + value));
+                this.families.size() + " families arrived from aircraft number " + this.flightNumber + "!\n" +
+                "List of visiting families:" + this.families);
+
+
+
     }
 }
