@@ -79,4 +79,10 @@ public class Bus implements Runnable {
         this.familyList.forEach(family -> placesAreOccupied.addAndGet(family.getMembers()));
         System.out.println(this.passengersCount + " local bus brought " + placesAreOccupied + " people to " + this.driveTo);
     }
+
+    public void busArrived(){
+        AtomicInteger placesAreOccupied = new AtomicInteger();
+        this.familyList.forEach(family -> placesAreOccupied.addAndGet(family.getMembers()));
+        System.out.println(this.passengersCount + " local bus brought " + placesAreOccupied + " people to " + this.driveTo);
+    }
 }

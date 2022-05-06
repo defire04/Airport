@@ -27,21 +27,14 @@ public class TourOperator {
                 familyMembersTemp = family.getMembers();
 
                 for (Bus bus : busList) {
-                    placesLeftTemp = bus.getPlacesLeft();
-
                     if (familyTravelTo.equals(bus.getDriveTo())) {
-
-
-//                            if (placesLeftTemp == 0) {
-//                                new Thread(bus).start();
-//                                busList.remove(bus);
-//                            }
+                        placesLeftTemp = bus.getPlacesLeft();
                         if (placesLeftTemp - familyMembersTemp > -1) {
                             bus.setPlacesLeft(placesLeftTemp - familyMembersTemp);
                             bus.getFamilyList().add(family);
                             if (bus.getPlacesLeft() == 0) {
-//                                System.out.println("222222222222222222222222222222222222222222222222222222222222");
                                 new Thread(bus).start();
+//                                bus.busArrived(); // Если нужно проверить что незаполненый приезжает последним
                                 busList.remove(bus);
                             }
                         } else {
@@ -49,20 +42,9 @@ public class TourOperator {
                             busList.add(newBus);
                             newBus.setPlacesLeft(newBus.getPlacesLeft() - familyMembersTemp);
                             newBus.getFamilyList().add(family);
-                            if (bus.getPlacesLeft() == 0) {
-                                System.out.println("1111111111111111111111111111111111111111111111111111111111111111111111");
-                                new Thread(bus).start();
-                                busList.remove(bus);
-                            }
                         }
                         break;
                     }
-//                    if (bus.getPlacesLeft() == 0) {
-//                        System.out.println("333333333333");
-//                        new Thread(bus).start();
-//                        busList.remove(bus);
-//                        break;
-//                    }
                 }
             }
 
@@ -87,6 +69,7 @@ public class TourOperator {
                     bus.getValue().forEach(bus1 -> newFamilyList.addAll(bus1.getFamilyList()));
                 } else {
                     bus.getValue().forEach(bus1 -> new Thread(bus1).start());
+//                    bus.getValue().forEach(Bus::busArrived); // Если нужно проверить что незаполненый приезжает последним
                 }
             }
             if (!newFamilyList.isEmpty()) {
