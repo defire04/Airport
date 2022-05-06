@@ -3,10 +3,9 @@ package business;
 import domain.Bus;
 import domain.Family;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class TourOperator {
     public static void sortingPassengersByCity(List<Family> familyList) {
@@ -76,51 +75,54 @@ public class TourOperator {
 
             busList.forEach(System.out::println);
             System.out.println("============================");
+
+            Map<String, List<Bus>> busInfoMap = busList.stream().collect(Collectors.groupingBy(
+                    Bus::getDriveTo, Collectors.toList()
+            ));
+//            Map<String, Long> busInfoMap = busList.stream().collect(Collectors.groupingBy(
+//                    Bus::getDriveTo, Collectors.counting()
+//            ));
+            System.out.println(busInfoMap);
+
             List<Family> newFamilyList = new ArrayList<>();
-            int c = 0;
-            if (!busList.isEmpty()) {
-                for (Bus bus1 : busList) {
-                    for (Bus bus2 : busList) {
-                        if (!bus1.equals(bus2)) {
-                            if (bus1.getDriveTo().equals(bus2.getDriveTo())) {
-                                c++;
-//                                bus1.getFamilyList().addAll(bus2.getFamilyList());
-//                                busList.remove(bus2);
-                            }
-                        }
-                    }
-//                    System.out.println("-=---" + c + " " + bus1 + " ");
-                    if (c > 1) {
-                        System.out.println(bus1 + " " + c);
-                        newFamilyList.addAll(bus1.getFamilyList());
-                    } else {
-                        new Thread(bus1).start();
-                    }
+//            busInfoMap.values().stream().filter(value -> value > 1).forEach();
+
+            for (Map.Entry<String, List<Bus>> bus : busInfoMap.entrySet()) {
+                if (bus.getValue().size() > 1) {
+                    bus.getValue().forEach(bus1 -> newFamilyList.addAll(bus1.getFamilyList()));
+                } else {
+                    bus.getValue().forEach(bus1 -> new Thread(bus1).start());
                 }
             }
+
+
+//            for (Map.Entry<String, Long> bus : busInfoMap.entrySet()) {
+//                System.out.println(bus.getKey() + "/" + bus.getValue());
+////
+////                busList.forEach(bus1 -> {
+////                    if (bus.getValue() > 1) {
+////                        newFamilyList.addAll(bus1.getFamilyList());
+////                    } else {
+////                        new Thread(bus1).start();
+////                    }
+////                });
+////            }
+//                if (bus.getValue() > 1) {
+//                    busList.stream().filter(bus1 -> bus1.getDriveTo().equals(bus.getKey())).forEach(bus1 -> {
+//                        newFamilyList.addAll(bus1.getFamilyList());
+//                    });
+//                } else {
+//                    busList.forEach(bus1 -> {
+//                        newFamilyList.addAll(bus1.getFamilyList());
+//                    });
+//
+//                }
+//            }
             if (!newFamilyList.isEmpty()) {
                 sortingPassengersByCity(newFamilyList);
             }
 
-//            List<Family> NewFamilyList = new ArrayList<>();
-//            for (Bus bus1 : busList) {
-//                for (Bus bus2 : busList) {
-//                    if(bus1.getDriveTo().equals(bus2.getDriveTo())){
-//                        if(!bus1.equals(bus2)){
-//
-//
-//                        }
-//                    }
-//                }
-//            }
 
-
-//            for (Bus bus : busList) {
-//                if (!bus.getFamilyList().isEmpty()) {
-//                    new Thread(bus).start();
-////                    System.out.println(bus);
-//                }
-//            }
         }
     }
 

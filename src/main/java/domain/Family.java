@@ -1,5 +1,7 @@
 package domain;
 
+import java.util.Objects;
+
 public class Family {
     private final String name;
     private String travelTo;
@@ -37,6 +39,19 @@ public class Family {
 
     public void setFamilyInBus(boolean familyInBus) {
         isFamilyInBus = familyInBus;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Family family = (Family) o;
+        return members == family.members && isFamilyInBus == family.isFamilyInBus && Objects.equals(name, family.name) && Objects.equals(travelTo, family.travelTo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, travelTo, members, isFamilyInBus);
     }
 
     @Override
