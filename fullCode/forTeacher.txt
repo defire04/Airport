@@ -12,14 +12,16 @@ public class Dispatcher {
         System.out.println("Arrive " + arrivalList.size() + " planes");
 
 
-//        Tester.setFamilyForTest(new Family("Millers", "Kiev", 4));
+        Tester.setFamilyForTest(new Family("Millers", "Kiev", 4));
+        Tester.setEveryoneSurname(arrivalList);
 
         BorderService.arrivalOfFamiliesToAirport(arrivalList);
 
-//        Tester.getTestHowManyPeopleTravelToEachDirection();
+        Tester.getTestHowManyPeopleTravelToEachDirection();
 //        Tester.getAllFamilies();
     }
 }
+
 
 class Tester {
     public static void getTestHowManyPeopleTravelToEachDirection() {
@@ -35,12 +37,16 @@ class Tester {
     public static void setFamilyForTest(Family family) {
         BorderService.allArrivingFamiliesAtAirport.add(family);
     }
+
+    public static void setEveryoneSurname(List<Plane> arrivalList){
+        arrivalList.forEach(plane -> plane.getFamilies().forEach(family -> family.setTravelTo("Kiev")));
+    }
 }
+
 
 class BorderService {
     public static List<Family> allArrivingFamiliesAtAirport = new ArrayList<>();
-
-    public static void arrivalOfFamiliesToAirport(List<Plane> planeList) {
+    public static void arrivalOfFamiliesToAirport(List<Plane> planeList){
         planeList.forEach(plane -> allArrivingFamiliesAtAirport.addAll(plane.getFamilies()));
         TourOperator.sortingPassengersByCity(allArrivingFamiliesAtAirport);
     }
@@ -48,68 +54,111 @@ class BorderService {
 
 class TourOperator {
     public static void sortingPassengersByCity(List<Family> familyList) {
-        List<Bus> busList = new ArrayList<>();
-//        System.out.println(familyList.stream().collect(Collectors.summarizingLong(Family::getMembers)).getSum());
-        int placesLeftTemp;
-        int familyMembersTemp;
-        String familyTravelTo;
-        for (Family family : familyList) {
-            familyTravelTo = family.getTravelTo();
-            if (!(busList.contains(new Bus(0, familyTravelTo)))) {
-                busList.add(new Bus((int) (Math.random() * 3) + 6, familyTravelTo));
-            }
-            familyMembersTemp = family.getMembers();
-            for (Bus bus : busList) {
-                if (familyTravelTo.equals(bus.getDriveTo())) {
-                    placesLeftTemp = bus.getPlacesLeft();
-                    if (placesLeftTemp - familyMembersTemp > -1) {
-                        bus.setPlacesLeft(placesLeftTemp - familyMembersTemp);
-                        bus.getFamilyList().add(family);
-                        if (bus.getPlacesLeft() == 0) {
- //                              new Thread(bus).start();
-                             bus.busArrived(); // Если нужно проверить что незаполненый приезжает последним
-                            busList.remove(bus);
-                        }
-                    } else {
-                        Bus newBus = new Bus(((int) (Math.random() * 3) + 6), familyTravelTo);
-                        busList.add(newBus);
-                        newBus.setPlacesLeft(newBus.getPlacesLeft() - familyMembersTemp);
-                        newBus.getFamilyList().add(family);
-                    }
-                    break;
-                }
-            }
-        }
+        System.out.println("Total people arrived " + familyList.stream().collect(Collectors.summarizingLong(Family::getMembers)).getSum());
 
-        checkingIfTheLastBusIsGoingInThatDirection(busList);
-    }
+        Map<String, List<Family>> sortedToCityMap = familyList.stream()
+                .collect(Collectors.groupingBy(Family::getTravelTo, Collectors.toList()));
 
-    private static void checkingIfTheLastBusIsGoingInThatDirection(List<Bus> busList) {
-        busList.removeIf(bus -> bus.getFamilyList().isEmpty());
-        Map<String, List<Bus>> busInfoMap = busList.stream().collect(Collectors.groupingBy(
-                Bus::getDriveTo, Collectors.toList()
-        ));
-
-        List<Family> newFamilyList = new ArrayList<>();
-
-        for (Map.Entry<String, List<Bus>> bus : busInfoMap.entrySet()) {
-            if (bus.getValue().size() > 1) {
-                bus.getValue().forEach(bus1 -> newFamilyList.addAll(bus1.getFamilyList()));
-            } else {
- //                bus.getValue().forEach(bus1 -> new Thread(bus1).start());
-                   bus.getValue().forEach(Bus::busArrived); // Если нужно проверить что незаполненый приезжает последним
-            }
-        }
-        if (!newFamilyList.isEmpty()) {
-            sortingPassengersByCity(newFamilyList);
+        for (Map.Entry<String, List<Family>> cityTo : sortedToCityMap.entrySet()) {
+            new TourToCity(cityTo.getKey(), cityTo.getValue());
         }
     }
 }
 
+class TourToCity implements Runnable {
+    private final String city;
+    private List<Family> familiesToCityList;
+    private List<Bus> busList = new ArrayList<>();
+
+    public TourToCity(String city, List<Family> familiesToCity) {
+        this.city = city;
+        this.familiesToCityList = familiesToCity;
+        new Thread(this).start();
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public List<Family> getFamiliesToCity() {
+        return familiesToCityList;
+    }
+
+    public void setFamiliesToCity(List<Family> familiesToCity) {
+        this.familiesToCityList = familiesToCity;
+    }
+
+    public List<Bus> getBusList() {
+        return busList;
+    }
+
+    public void setBusList(List<Bus> busList) {
+        this.busList = busList;
+    }
+
+    @Override
+    public void run() {
+        boardingToBus(familiesToCityList);
+    }
+
+    private void boardingToBus(List<Family> familiesToCityList) {
+        for (Family family : familiesToCityList) {
+            if (busList.isEmpty()) {
+                busList.add(new Bus(((int) (Math.random() * 3) + 6), city));
+            }
+
+            for (Bus bus : busList) {
+                if (bus.getPlacesLeft() - family.getMembers() > -1) {
+                    bus.setPlacesLeft(bus.getPlacesLeft() - family.getMembers());
+                    bus.getFamilyList().add(family);
+                    family.setFamilyInBus(true);
+                    if (bus.getPlacesLeft() == 0) {
+//                            new Thread(bus).start();
+                        bus.busArrived(); // Если нужно проверить что незаполненый приезжает последним
+                        busList.remove(bus);
+                    }
+                }
+                break;
+            }
+
+            if (!family.getIsFamilyInBus()) {
+                family.setFamilyInBus(true);
+                Bus newBus = new Bus(((int) (Math.random() * 3) + 6), city);
+                busList.add(newBus);
+                newBus.setPlacesLeft(newBus.getPlacesLeft() - family.getMembers());
+                newBus.getFamilyList().add(family);
+
+            }
+        }
+
+        if (!busList.isEmpty()) {
+            howManyBusesAreWaiting(busList);
+        }
+    }
+
+
+    private void howManyBusesAreWaiting(List<Bus> busList) {
+        List<Family> newFamiliesList = new ArrayList<>();
+        if (busList.size() > 1) {
+            busList.forEach(bus -> newFamiliesList.addAll(bus.getFamilyList()));
+
+        } else {
+            busList.forEach(Bus::busArrived);            // Если нужно проверить что незаполненый приезжает последним
+//            busList.forEach(bus -> new Thread(bus).start());
+        }
+
+        if (!newFamiliesList.isEmpty()) {
+            busList.clear();
+            newFamiliesList.forEach(family -> family.setFamilyInBus(false));
+            boardingToBus(newFamiliesList);
+        }
+    }
+}
 
 class Family {
     private final String name;
-    private final String travelTo;
+    private String travelTo;
+
     private final int members;
     private boolean isFamilyInBus = false;
 
@@ -120,6 +169,7 @@ class Family {
 
     }
 
+
     public String getName() {
         return name;
     }
@@ -128,11 +178,15 @@ class Family {
         return travelTo;
     }
 
+    public void setTravelTo(String travelTo) {
+        this.travelTo = travelTo;
+    } // fot Tester
+
     public int getMembers() {
         return members;
     }
 
-    public boolean isFamilyInBus() {
+    public boolean getIsFamilyInBus() {
         return isFamilyInBus;
     }
 
@@ -161,6 +215,8 @@ class Family {
     }
 }
 
+
+
 class Plane implements Runnable {
     public static final int SEATS = 40;
     private final int flightNumber;
@@ -176,9 +232,6 @@ class Plane implements Runnable {
         return families;
     }
 
-    public void setFamilies(List<Family> families) { // Чтобы добавить семью для теста
-        this.families = families;
-    }
 
     public int getFlightNumber() {
         return flightNumber;

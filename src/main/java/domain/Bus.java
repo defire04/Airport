@@ -10,14 +10,13 @@ public class Bus implements Runnable {
     private final String driveTo;
     private final int passengersCount;
     private int placesLeft;
-    private List<Family> familyList;
+    private List<Family> familyList = new ArrayList<>();
 
 
     public Bus(int passengersCount, String driveTo) {
         this.passengersCount = passengersCount;
         this.placesLeft = passengersCount;
         this.driveTo = driveTo;
-        this.familyList = new ArrayList<>();
     }
 
     public String getDriveTo() {

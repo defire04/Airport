@@ -4,11 +4,7 @@ import java.util.Objects;
 
 public class Family {
     private final String name;
-    private  String travelTo;
-
-    public void setTravelTo(String travelTo) {
-        this.travelTo = travelTo;
-    }
+    private String travelTo;
 
     private final int members;
     private boolean isFamilyInBus = false;
@@ -28,6 +24,10 @@ public class Family {
     public String getTravelTo() {
         return travelTo;
     }
+
+    public void setTravelTo(String travelTo) {
+        this.travelTo = travelTo;
+    } // fot Tester
 
     public int getMembers() {
         return members;

@@ -2,6 +2,7 @@ package domain;
 
 import business.BorderService;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class Tester {
@@ -17,5 +18,9 @@ public class Tester {
 
     public static void setFamilyForTest(Family family) {
         BorderService.allArrivingFamiliesAtAirport.add(family);
+    }
+
+    public static void setEveryoneTravelToOneDirection(List<Plane> arrivalList, String travelTo){
+        arrivalList.forEach(plane -> plane.getFamilies().forEach(family -> family.setTravelTo(travelTo)));
     }
 }
