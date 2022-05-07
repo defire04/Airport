@@ -14,6 +14,7 @@ public class Dispatcher {
 
 
 //        Tester.setFamilyForTest(new Family("Millers", "Kiev", 4));
+        arrivalList.forEach(plane -> plane.getFamilies().forEach(family -> family.setTravelTo("Kiev")));
 
         BorderService.arrivalOfFamiliesToAirport(arrivalList);
 

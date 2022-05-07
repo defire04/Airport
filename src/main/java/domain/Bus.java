@@ -76,4 +76,7 @@ public class Bus implements Runnable {
                 " Families =" + this.familyList);
     }
 
+    public boolean isBusSuitable(Family family){
+        return this.placesLeft - family.getMembers() > -1;
+    }
 }
