@@ -1,10 +1,7 @@
-package com.company;
+
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.concurrent.atomic.AtomicInteger;
-
-
 
 public class Dispatcher {
     public static void main(String[] args) {
@@ -13,16 +10,15 @@ public class Dispatcher {
 
 
         Tester.setFamilyForTest(new Family("Millers", "Kiev", 4));
-        Tester.setEveryoneSurname(arrivalList);
+//        Tester.setEveryoneTravelToOneDirection(arrivalList, "Kiev");
 
         BorderService.arrivalOfFamiliesToAirport(arrivalList);
 
         Tester.getTestHowManyPeopleTravelToEachDirection();
 //        Tester.getAllFamilies();
+
     }
 }
-
-
 class Tester {
     public static void getTestHowManyPeopleTravelToEachDirection() {
         BorderService.allArrivingFamiliesAtAirport.stream().collect(Collectors.groupingBy(
@@ -38,11 +34,10 @@ class Tester {
         BorderService.allArrivingFamiliesAtAirport.add(family);
     }
 
-    public static void setEveryoneSurname(List<Plane> arrivalList){
-        arrivalList.forEach(plane -> plane.getFamilies().forEach(family -> family.setTravelTo("Kiev")));
+    public static void setEveryoneTravelToOneDirection(List<Plane> arrivalList, String travelTo){
+        arrivalList.forEach(plane -> plane.getFamilies().forEach(family -> family.setTravelTo(travelTo)));
     }
 }
-
 
 class BorderService {
     public static List<Family> allArrivingFamiliesAtAirport = new ArrayList<>();
@@ -51,7 +46,6 @@ class BorderService {
         TourOperator.sortingPassengersByCity(allArrivingFamiliesAtAirport);
     }
 }
-
 class TourOperator {
     public static void sortingPassengersByCity(List<Family> familyList) {
         System.out.println("Total people arrived " + familyList.stream().collect(Collectors.summarizingLong(Family::getMembers)).getSum());
@@ -64,11 +58,11 @@ class TourOperator {
         }
     }
 }
-
 class TourToCity implements Runnable {
     private final String city;
     private List<Family> familiesToCityList;
     private List<Bus> busList = new ArrayList<>();
+
 
     public TourToCity(String city, List<Family> familiesToCity) {
         this.city = city;
@@ -101,6 +95,8 @@ class TourToCity implements Runnable {
         boardingToBus(familiesToCityList);
     }
 
+//    int countForTest;
+
     private void boardingToBus(List<Family> familiesToCityList) {
         for (Family family : familiesToCityList) {
             if (busList.isEmpty()) {
@@ -108,7 +104,7 @@ class TourToCity implements Runnable {
             }
 
             for (Bus bus : busList) {
-                if (bus.getPlacesLeft() - family.getMembers() > -1) {
+                if (bus.isBusSuitable(family)) {
                     bus.setPlacesLeft(bus.getPlacesLeft() - family.getMembers());
                     bus.getFamilyList().add(family);
                     family.setFamilyInBus(true);
@@ -118,10 +114,13 @@ class TourToCity implements Runnable {
                         busList.remove(bus);
                     }
                 }
+                else {
+                    continue;  // Чтобы искало пока не найдет подходящий автобус
+                }
                 break;
             }
 
-            if (!family.getIsFamilyInBus()) {
+            if (!family.getIsFamilyInBus()) { // если не нашло
                 family.setFamilyInBus(true);
                 Bus newBus = new Bus(((int) (Math.random() * 3) + 6), city);
                 busList.add(newBus);
@@ -132,12 +131,14 @@ class TourToCity implements Runnable {
         }
 
         if (!busList.isEmpty()) {
+//            System.out.println("Thread:" + Thread.currentThread().getId() + " Количество заходов: " + ++countForTest);
             howManyBusesAreWaiting(busList);
         }
     }
 
 
     private void howManyBusesAreWaiting(List<Bus> busList) {
+
         List<Family> newFamiliesList = new ArrayList<>();
         if (busList.size() > 1) {
             busList.forEach(bus -> newFamiliesList.addAll(bus.getFamilyList()));
@@ -215,8 +216,6 @@ class Family {
     }
 }
 
-
-
 class Plane implements Runnable {
     public static final int SEATS = 40;
     private final int flightNumber;
@@ -225,13 +224,16 @@ class Plane implements Runnable {
     public Plane(List<Family> families, int flightNumber) {
         this.families = families;
         this.flightNumber = flightNumber;
-//        new Thread(this).start();
+        new Thread(this).start();
     }
 
     public List<Family> getFamilies() {
         return families;
     }
 
+    public void setFamilies(List<Family> families) { // Чтобы добавить семью для теста
+        this.families = families;
+    }
 
     public int getFlightNumber() {
         return flightNumber;
@@ -247,29 +249,27 @@ class Plane implements Runnable {
 
     @Override
     public void run() {
-        //infoAboutPeopleAboard();
+        infoAboutPeopleAboard();
     }
 
-    private void infoAboutPeopleAboard() {
-        System.out.println("----------------------------------------------\n" +
-                this.families.size() + " families arrived from aircraft number " + this.flightNumber + "!\n" +
-                "List of visiting families:" + this.families);
+    public void infoAboutPeopleAboard() {
+        System.out.println(this.families.size() + " families arrived from aircraft number " + this.flightNumber + "!\n" +
+                "List of visiting families:" + this.families +
+                "\n----------------------------------------------");
     }
 }
-
 
 class Bus implements Runnable {
     private final String driveTo;
     private final int passengersCount;
     private int placesLeft;
-    private List<Family> familyList;
+    private List<Family> familyList = new ArrayList<>();
 
 
     public Bus(int passengersCount, String driveTo) {
         this.passengersCount = passengersCount;
         this.placesLeft = passengersCount;
         this.driveTo = driveTo;
-        this.familyList = new ArrayList<>();
     }
 
     public String getDriveTo() {
@@ -327,6 +327,22 @@ class Bus implements Runnable {
         System.out.println(this.passengersCount + " local bus brought " + this.familyList.stream().mapToInt(Family::getMembers).sum() + " people to " + this.driveTo +
                 " Families =" + this.familyList);
     }
+
+    public boolean isBusSuitable(Family family){
+        return this.placesLeft - family.getMembers() > -1;
+    }
+}
+class PlaneFactory {
+
+    public static List<Plane> createPlanes(){
+        List<Plane> planeResultList = new ArrayList<>();
+
+        for (int i = 0; i < (int) (Math.random() * 3) + 3; i++) {
+//        for (int i = 0; i < 1; i++) {
+            planeResultList.add(new Plane(FamilyFactory.createFamilies(), i + 1));
+        }
+        return planeResultList;
+    }
 }
 class FamilyFactory {
     public static List<Family> createFamilies() {
@@ -365,19 +381,6 @@ class FamilyFactory {
             }
         }
         return resultSurnameSet;
-    }
-}
-
-class PlaneFactory {
-
-    public static List<Plane> createPlanes() {
-        List<Plane> planeResultList = new ArrayList<>();
-
-        for (int i = 0; i < (int) (Math.random() * 3) + 3; i++) {
-//        for (int i = 0; i < 1; i++) {
-            planeResultList.add(new Plane(FamilyFactory.createFamilies(), i + 1));
-        }
-        return planeResultList;
     }
 }
 

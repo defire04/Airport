@@ -7,10 +7,11 @@ public class Plane implements Runnable {
     public static final int SEATS = 40;
     private final int flightNumber;
     private List<Family> families;
+
     public Plane(List<Family> families, int flightNumber) {
         this.families = families;
         this.flightNumber = flightNumber;
-//        new Thread(this).start();
+        new Thread(this).start();
     }
 
     public List<Family> getFamilies() {
@@ -35,12 +36,12 @@ public class Plane implements Runnable {
 
     @Override
     public void run() {
-        //infoAboutPeopleAboard();
+        infoAboutPeopleAboard();
     }
 
-    private void infoAboutPeopleAboard() {
-        System.out.println("----------------------------------------------\n" +
-                this.families.size() + " families arrived from aircraft number " + this.flightNumber + "!\n" +
-                "List of visiting families:" + this.families);
+    public void infoAboutPeopleAboard() {
+        System.out.println(this.families.size() + " families arrived from aircraft number " + this.flightNumber + "!\n" +
+                "List of visiting families:" + this.families +
+                "\n----------------------------------------------");
     }
 }
