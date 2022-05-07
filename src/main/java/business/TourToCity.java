@@ -47,53 +47,62 @@ public class TourToCity implements Runnable {
     }
 
     private void boardingToBus(List<Family> familiesToCityList) {
-        System.out.println("------");
-        if (busList.isEmpty()) {
-            busList.add(new Bus(((int) (Math.random() * 3) + 6), city));
-        }
+//        System.out.println("------");
+
         for (Family family : familiesToCityList) {
+            if (busList.isEmpty()) {
+                busList.add(new Bus(((int) (Math.random() * 3) + 6), city));
+            }
+
             for (Bus bus : busList) {
                 if (bus.getPlacesLeft() - family.getMembers() > -1) {
                     bus.setPlacesLeft(bus.getPlacesLeft() - family.getMembers());
                     bus.getFamilyList().add(family);
+                    family.setFamilyInBus(true);
                     if (bus.getPlacesLeft() == 0) {
-//                        new Thread(bus).start();
+//                            new Thread(bus).start();
                         bus.busArrived(); // Если нужно проверить что незаполненый приезжает последним
                         busList.remove(bus);
                     }
-                } else {
-                    Bus newBus = new Bus(((int) (Math.random() * 3) + 6), city);
-                    busList.add(newBus);
-                    newBus.setPlacesLeft(newBus.getPlacesLeft() - family.getMembers());
-                    newBus.getFamilyList().add(family);
                 }
                 break;
+            }
+
+            if (!family.getIsFamilyInBus()) {
+                family.setFamilyInBus(true);
+                Bus newBus = new Bus(((int) (Math.random() * 3) + 6), city);
+                busList.add(newBus);
+                newBus.setPlacesLeft(newBus.getPlacesLeft() - family.getMembers());
+                newBus.getFamilyList().add(family);
 
             }
         }
 
-        System.out.println(busList);
+//        if (!busList.isEmpty()) {
+//        System.out.println(busList);
         checkingIfTheLastBusIsGoingInThatDirection(busList);
+
+//        }
     }
 
 
-    private void checkingIfTheLastBusIsGoingInThatDirection(List<Bus> busList) {
+    private synchronized void checkingIfTheLastBusIsGoingInThatDirection(List<Bus> busList) {
 
         List<Family> newFamiliesList = new ArrayList<>();
-        if (!busList.isEmpty()) {
 
-            if (busList.size() == 1) {
-                busList.forEach(Bus::busArrived);
-            } else {
-                for (Bus bus : busList) {
-                    newFamiliesList.addAll(bus.getFamilyList());
-                    System.out.println("11");
-                }
-            }
 
-            if (!newFamiliesList.isEmpty()) {
-                boardingToBus(newFamiliesList);
-            }
+        if (busList.size() > 1) {
+            busList.forEach(bus -> newFamiliesList.addAll(bus.getFamilyList()));
+
+        } else {
+//            System.out.println(busList.size());
+            busList.forEach(Bus::busArrived);
+        }
+        if (!newFamiliesList.isEmpty()) {
+            busList.clear();
+//            System.out.println(newFamiliesList);
+            newFamiliesList.forEach(family -> family.setFamilyInBus(false));
+            boardingToBus(newFamiliesList);
 
         }
     }

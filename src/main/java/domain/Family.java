@@ -33,7 +33,7 @@ public class Family {
         return members;
     }
 
-    public boolean isFamilyInBus() {
+    public boolean getIsFamilyInBus() {
         return isFamilyInBus;
     }
 
